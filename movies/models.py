@@ -8,6 +8,7 @@ class Movie(models.Model): # controls model properties
     price = models.IntegerField()
     description = models.TextField()
     image = models.ImageField(upload_to='movie_images/')
+    amount_left = models.PositiveIntegerField(default=1) #new
     def __str__(self):
         return str(self.id) + ' - ' + self.name
     
