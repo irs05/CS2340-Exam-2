@@ -30,15 +30,24 @@
             <h2>Reviews</h2>
             <hr />
                 <ul class="list-group">
+                    <a class="btn btn-secondary"
+                        href="{% url 'movies.sort_review' id=template_data.movie.id %}">
+                        Sort Reviews by Top Rating
+                    </a>
                     {% for review in template_data.reviews %}
                     <li class="list-group-item pb-3 pt-3">
                         <h5 class="card-title">Review by {{ review.user.username }}</h5>
                         <h6 class="card-subtitle mb-2 text-muted">{{ review.date }}</h6>
                         <p class="card-text">{{ review.comment }}</p>
+                        <p>{{ review.likes }}<b> Likes</b> </p>
+                        <a class="btn btn-primary"
+                                href="{% url 'movies.like_review' id=template_data.movie.id review_id=review.id %}">
+                                Like Review
+                        </a>
                         {% if user.is_authenticated and user == review.user %}
                             <a class="btn btn-primary"
                                 href="{% url 'movies.edit_review' id=template_data.movie.id review_id=review.id %}">
-                                Edit
+                                Edit Review
                             </a>
                             <a class="btn btn-danger"
                                 href="{% url 'movies.delete_review' id=template_data.movie.id review_id=review.id %}">
