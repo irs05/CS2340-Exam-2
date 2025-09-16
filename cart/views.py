@@ -49,8 +49,9 @@ def purchase(request):
         item.price = movie.price
         item.order = order
         item.quantity = cart[str(movie.id)]
+        movie.amount_left -= 1   
         item.save()
-        movie.amount_left -= 1
+        movie.save()
     request.session['cart'] = {}
     template_data = {}
     template_data['title'] = 'Purchase confirmation'
