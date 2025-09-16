@@ -8,9 +8,11 @@ def index(request):
         movies = Movie.objects.filter(name__icontains=search_term)
     else:
         movies = Movie.objects.all()
+    reviews = Review.objects.all() # new
     template_data = {}
     template_data['title'] = 'Movies'
     template_data['movies'] = movies
+    template_data['reviews'] = reviews #new
     return render(request, 'movies/index.html',
                   {'template_data': template_data})
 
