@@ -29,3 +29,24 @@ class Rating(models.Model):
     stars = models.PositiveIntegerField(default=0) # new
     def __str__(self):
         return str(self.id) + ' - ' + self.movie.name
+
+# --- Trending by Region ---
+class Region(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class MovieRegionStat(models.Model):
+    movie = models.ForeignKey('movies.Movie', on_delete=models.CASCADE, related_name='region_stats')
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, related_name='movie_stats')
+    views = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('movie', 'region')
+        indexes = [
+            models.Index(fields=['movie', 'region']),
+        ]
+
+    def __str__(self):
+        return f"{self.movie.name} @ {self.region.name}: {self.views}"

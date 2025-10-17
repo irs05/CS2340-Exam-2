@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+{% load cart_filters %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto mb-3">
+        <h2>Checkout</h2>
+        <hr />
+      </div>
+    </div>
+
+    <div class="row m-1">
+      <table class="table table-bordered table-striped text-center">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for movie in template_data.movies_in_cart %}
+          <tr>
+            <td>{{ movie.id }}</td>
+            <td>{{ movie.name }}</td>
+            <td>${{ movie.price }}</td>
+            <td>{{ request.session.cart|get_quantity:movie.id }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <form method="post" action="{% url 'cart.purchase' %}">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">City</label>
+          <input class="form-control" name="city" placeholder="City" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">State/Region</label>
+          <input class="form-control" name="state" placeholder="State or Region" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Country</label>
+          <input class="form-control" name="country" placeholder="Country" />
+        </div>
+      </div>
+
+      <div class="row g-3 mt-2">
+        <div class="col-md-6">
+          <label class="form-label">Latitude (optional)</label>
+          <input class="form-control" name="latitude" type="number" step="0.000001" placeholder="e.g. 33.749000" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Longitude (optional)</label>
+          <input class="form-control" name="longitude" type="number" step="0.000001" placeholder="e.g. -84.388000" />
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="text-end">
+          <a class="btn btn-outline-secondary mb-2"><b>Total to pay:</b> ${{ template_data.cart_total }}</a>
+          <button class="btn bg-dark text-white mb-2" type="submit">Confirm Purchase</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  </div>
+{% endblock content %}
