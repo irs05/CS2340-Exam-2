@@ -1,15 +1,24 @@
 import json
+from pathlib import Path
 from django.shortcuts import render
 
 
 # Create your views here.
 def index(request):
-    # Import folium lazily so migrations and checks don't require it
-    # during module import. This avoids ModuleNotFoundError when folium
-    # isn't installed yet.
-    import folium
+    # Import folium lazily and handle missing dependency at runtime.
+    try:
+        import folium
+    except ModuleNotFoundError:
+        msg = (
+            "<div class='alert alert-warning' role='alert'>"
+            "Folium is not installed. Install it with "
+            "<code>pip install folium</code> to view the map."
+            "</div>"
+        )
+        return render(request, "geomap/index.html", {"map": msg})
     m = folium.Map(location = [20, 0], zoom_start = 3, min_zoom = 3, max_zoom = 10, max_bounds= True)
-    with open("geomap/custom.geo.json") as f:
+    geojson_path = Path(__file__).resolve().parent / "custom.geo.json"
+    with open(geojson_path, mode="r", encoding="utf-8") as f:
         countries = json.load(f)
     folium.GeoJson(countries,
                      name = "Countries", 
