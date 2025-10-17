@@ -79,4 +79,7 @@
 /* checked (selected) highlight */
 .stars input[type="radio"]:checked ~ label {
     color: gold;
+#map {
+  height: 80 vh;
+  width: 60%
 }
