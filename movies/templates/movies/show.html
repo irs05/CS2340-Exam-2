@@ -30,10 +30,6 @@
             <h2>Reviews</h2>
             <hr />
                 <ul class="list-group">
-                    <a class="btn btn-secondary"
-                        href="{% url 'movies.sort_review' id=template_data.movie.id %}">
-                        Sort Reviews by Top Rating
-                    </a>
                     {% for review in template_data.reviews %}
                     <li class="list-group-item pb-3 pt-3">
                         <h5 class="card-title">Review by {{ review.user.username }}</h5>
