@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Movie, Review
+from .models import Movie, Review, Rating
 
 class MovieAdmin(admin.ModelAdmin): # controls how it looks and behaves
     ordering = ['name']
@@ -11,3 +11,4 @@ class MovieAdmin(admin.ModelAdmin): # controls how it looks and behaves
         return ro
 admin.site.register(Movie, MovieAdmin)
 admin.site.register(Review)
+admin.site.register(Rating)

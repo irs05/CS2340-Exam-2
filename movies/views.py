@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Movie, Review
+from .models import Movie, Review, Rating
 from django.db.models import F
 from django.contrib.auth.decorators import login_required
 
@@ -20,10 +20,12 @@ def index(request):
 def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
+    ratings = Rating.objects.filter(movie=movie, user=request.user)
     template_data = {}
     template_data['title'] = movie.name
     template_data['movie'] = movie
     template_data['reviews'] = reviews
+    template_data['ratings'] = ratings
     return render(request, 'movies/show.html',
                   {'template_data': template_data})
 
@@ -62,12 +64,12 @@ def edit_review(request, id, review_id):
     
 
 @login_required
-def delete_review(id, review_id):
+def delete_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     review.delete()
     return redirect('movies.show', id=id)
 
-def like_review(id, review_id):
+def like_review(request, review_id):
     review = get_object_or_404(Review, id=review_id)
     review.likes += 1
     review.save()
@@ -83,3 +85,23 @@ def sort_review(request, id):
     return render(request, 'movies/show.html',
                   {'template_data': template_data})
 
+@login_required
+def rate_movie(request, id):
+    if request.method == 'POST' and request.POST.get("stars"):
+        movie = get_object_or_404(Movie, id=id)
+        stars = request.POST.get("stars")
+        if (1 <= int(stars) <= 5):
+            Rating.objects.update_or_create(
+                movie=movie,
+                user=request.user,
+                defaults={"stars": int(stars)},
+            )
+        return redirect('movies.show', id=id)
+    else:
+        return redirect('movies.show', id=id)
+
+@login_required
+def delete_rating(request, id, rating_id):
+    rating = get_object_or_404(Rating, id=rating_id)
+    rating.delete()
+    return redirect('movies.show', id=id)
