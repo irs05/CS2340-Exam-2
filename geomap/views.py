@@ -1,10 +1,13 @@
-import folium
 import json
 from django.shortcuts import render
 
 
 # Create your views here.
 def index(request):
+    # Import folium lazily so migrations and checks don't require it
+    # during module import. This avoids ModuleNotFoundError when folium
+    # isn't installed yet.
+    import folium
     m = folium.Map(location = [20, 0], zoom_start = 3, min_zoom = 3, max_zoom = 10, max_bounds= True)
     with open("geomap/custom.geo.json") as f:
         countries = json.load(f)
