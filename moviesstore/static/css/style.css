@@ -44,3 +44,8 @@
     width: fit-content;
     max-height: 400px;
 }
+
+#map {
+  height: 80 vh;
+  width: 60%
+}
