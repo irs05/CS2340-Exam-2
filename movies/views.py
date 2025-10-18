@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Review, Rating
-from django.db.models import F
+from django.db.models import F, Avg
 from django.contrib.auth.decorators import login_required
+
 
 def index(request):
     search_term = request.GET.get('search')
@@ -10,9 +11,13 @@ def index(request):
     else:
         movies = Movie.objects.filter(amount_left__gt=0)
     #reviews = Review.objects.all() # new
+    
+    movies = movies.annotate(avg_rating=Avg('rating__stars'))
+
     template_data = {}
     template_data['title'] = 'Movies'
     template_data['movies'] = movies
+    
     #template_data['reviews'] = reviews #new
     return render(request, 'movies/index.html',
                   {'template_data': template_data})
@@ -21,11 +26,16 @@ def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
     ratings = Rating.objects.filter(movie=movie, user=request.user)
+    avg_rating = Rating.objects.filter(movie=movie).aggregate(Avg('stars'))
+    all_ratings = Rating.objects.filter(movie=movie)
+    avg_rating = all_ratings.aggregate(Avg('stars'))['stars__avg']
+    avg_rating = round(avg_rating, 1) if avg_rating else 0
     template_data = {}
     template_data['title'] = movie.name
     template_data['movie'] = movie
     template_data['reviews'] = reviews
     template_data['ratings'] = ratings
+    template_data['avg_rating'] = avg_rating
     return render(request, 'movies/show.html',
                   {'template_data': template_data})
 
