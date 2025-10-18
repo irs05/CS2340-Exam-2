@@ -31,8 +31,12 @@
             
             <form action="{% url 'movies.rate_movie' id=template_data.movie.id %}" method="POST" class="rating-form mt-5">
                 {% csrf_token %}
+                {% if template_data.avg_rating > 0 %}
+                <h4 >Average rating: ⭐</h4>
+                <p>{{ template_data.avg_rating }}/5</p>
               
                 <h4 class="d-inline me-2">Rating:</h4>
+                {% endif %}
                 <!-- Radio inputs (5 → 1 so CSS can fill leftwards) -->
                 <div class="stars me-2" role="radiogroup" aria-label="Rate from 1 to 5 stars">
 
