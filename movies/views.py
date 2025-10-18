@@ -16,7 +16,7 @@ def index(request):
     #template_data['reviews'] = reviews #new
     return render(request, 'movies/index.html',
                   {'template_data': template_data})
-
+@login_required
 def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
