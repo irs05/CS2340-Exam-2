@@ -1,15 +1,136 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
+
+<link rel="stylesheet" href = "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+<style>
+  #map {
+    height: 70vh;
+    width: 100%;
+  }
+  .trending-info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+  }
+  .trending-info h4 {
+    margin: 0 0 5px;
+    color: #777;
+  }
+</style>
+
 <div class="p-3">
   <div class="container">
     <div class="row mt-3">
       <div class="col mx-auto mb-3">
         <h2>See What's Trending</h2>
         <hr />
-        {{map | safe}}
+        <div id="map"></div>
       </div>
     </div>
   </div>
 </div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const map = L.map('map').setView([37.8, -96], 4);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+    const regionMarkers = L.layerGroup().addTo(map);
+
+    const trendingInfo = L.control({position: 'topright'});
+
+    trendingInfo.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'trending-info');
+      this.update();
+      return this._div;
+    };
+
+    trendingInfo.update = function(trendingMovies) {
+      let content = '<h4> Top 2 Movies in View</h4>';
+      if (trendingMovies && trendingMovies.length > 0) {
+        trendingMovies.forEach(movie => {
+        content += '<b>' + movie.title + '</b>: ' + movie.view_count + ' views<br>';
+        });
+      } else {
+        content += 'No trending movies in this area.';
+      }
+      if (this._div) {
+        this._div.innerHTML = content;
+      }
+    };
+
+    function fetchRegionalTrends() {
+      const url = `{% url 'geomap:get_regional_trends' %}`;
+      fetch(url)
+      .then (response => response.json())
+      .then(data => {
+        regionMarkers.clearLayers();
+        data.regions.forEach(region => {
+          const marker = L.marker([region.lat, region.lng]);
+          marker.bindPopup(`
+          <span style = "color: red; font-weight: bold;">TRENDING</span>
+          <br>
+          Movie: ${region.top_movie}
+          <hr style ="margin: 5px 0;">
+          Region: ${region.name}
+          <br>
+          Total Views: ${region.total_views}
+          `);
+          regionMarkers.addLayer(marker);
+        });
+      })
+      .catch(err => console.error("Failed to fetch regional trends:", err));
+    }
+
+    function fetchTrendingMoviesInBbox() {
+      const bounds = map.getBounds();
+      const bbox = `${bounds.getWest()},${bounds.getSouth()},${bounds.getEast()},${bounds.getNorth()}`;
+      const baseUrl = `{% url 'geomap:get_trending_movies_in_bbox' %}`;
+      const url = `${baseUrl}?bbox=${bbox}`;
+      fetch(url)
+      .then(response => response.json())
+      .then(data=> {
+        if (data.trending) {
+          trendingInfo.update(data.trending);
+
+        }
+      })
+      .catch(err=> console.error("Failed to fetch trending movies:", err));
+
+    }
+
+    function updateMapTrends() {
+      const zoomLevel = map.getZoom();
+      const ZOOM_THRESHOLD = 7;
+
+      if (zoomLevel > ZOOM_THRESHOLD) {
+        regionMarkers.clearLayers();
+        if (!trendingInfo._map) {
+          trendingInfo.addTo(map);
+        }
+        fetchTrendingMoviesInBbox();
+    } else {
+      if (trendingInfo._map) {
+        map.removeControl(trendingInfo);
+      }
+      fetchRegionalTrends();
+    }
+  }
+
+    map.on('zoomend moveend', updateMapTrends);
+
+    updateMapTrends();
+  });
+</script>
+
 {% endblock content %}
