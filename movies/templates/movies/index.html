@@ -31,7 +31,7 @@
             <img src="{{ movie.image.url }}" class="card-img-top rounded img-card-200">
    
                 <h4 >Average rating:</h4>
-                <p>{{ movie.avg_rating|floatformat:1|default:"No ratings yet" }}/5</p>
+                <p>{{ movie.avg_rating|floatformat:1|default:"-" }}/5</p>
               
             <div class="card-body text-center">
                 <a href="{% url 'movies.show' id=movie.id %}" class="btn bg-dark text-white">

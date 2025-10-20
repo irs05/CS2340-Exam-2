@@ -31,15 +31,15 @@
             
             <form action="{% url 'movies.rate_movie' id=template_data.movie.id %}" method="POST" class="rating-form mt-5">
                 {% csrf_token %}
-                {% if template_data.avg_rating > 0 %}
                 <h4 >Average rating: ⭐</h4>
-                <p>{{ template_data.avg_rating }}/5</p>
-              
-                <h4 class="d-inline me-2">Rating:</h4>
+                {% if template_data.avg_rating > 0 %}
+                    <p>{{ template_data.avg_rating }}/5</p>
+                {% else %}
+                    <p>No ratings yet.</p>
                 {% endif %}
+                <h4 class="d-inline">Rating:</h4>
                 <!-- Radio inputs (5 → 1 so CSS can fill leftwards) -->
-                <div class="stars me-2" role="radiogroup" aria-label="Rate from 1 to 5 stars">
-
+                <div class="d-inline-flex stars me-2" role="radiogroup" aria-label="Rate from 1 to 5 stars">
                   <input type="radio" name="stars" id="star5" value="5" required/>
                   <label for="star5" aria-label="5 stars">★</label>
               
